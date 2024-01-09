@@ -7,7 +7,7 @@ public class MoveAction : MonoBehaviour
 {
     Rigidbody rb;
     Vector3 moveDir;
-    public Vector3 targetPosition;
+    Vector3 targetPosition;
     [SerializeField] int speed;
     Animator anim;
 
