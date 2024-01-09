@@ -22,7 +22,15 @@ public class UnitSelectionManager : MonoBehaviour
     }
     public void SetCurrentUnit(Unit unit)
     {
+        GridManager grid = GridManager.Instance;
         currentUnit = unit;
+        Debug.Log(grid.tiles.Count);
+        if (grid.tiles.Count == 0)
+        {
+            grid.CreateGrid();
+        }
+        grid.MoveGrid();
+
     }
     public Unit GetCurrentUnit()
     {
