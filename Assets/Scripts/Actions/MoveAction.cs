@@ -72,7 +72,6 @@ public class MoveAction : MonoBehaviour
 
     public void MoveToTile(OverlayTile tile)
     {
-
         PathFinder.Instance.FindPath(unit.currentTile.worldPosition, tile.worldPosition, out int pathlength);
         path = GridManager.Instance.path;
         PathFinder.Instance.HighlightPath(path);

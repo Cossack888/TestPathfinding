@@ -34,6 +34,7 @@ public class UnitSelectionManager : MonoBehaviour
         {
             grid.CreateGrid();
         }
+
         grid.MoveGrid();
     }
     public Unit GetCurrentUnit()

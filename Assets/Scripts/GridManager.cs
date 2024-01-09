@@ -62,7 +62,7 @@ public class GridManager : MonoBehaviour
         Vector3 worldBottomLeft = new Vector3(basePosition.x, 0.05f, basePosition.z) - Vector3.right * gridWorldSize.x / 2 - Vector3.forward * gridWorldSize.y / 2;
         grid = new OverlayTile[gridSizeX, gridSizeY];
 
-        int tileIndex = 0; // Keep track of the index of the tile in the list
+        int tileIndex = 0;
 
         for (int x = 0; x < gridSizeX; x++)
         {
@@ -74,11 +74,11 @@ public class GridManager : MonoBehaviour
 
                 if (isOnFloor)
                 {
-                    // Check if there are existing tiles
+
                     if (tileIndex < tiles.Count)
                     {
                         OverlayTile tile = tiles[tileIndex];
-                        tileIndex++; // Move to the next tile in the list
+                        tileIndex++;
 
                         tile.SetTile(walkable, worldPoint, x, y);
                         manager.SetTilesMap(worldPoint, tile);
@@ -94,8 +94,6 @@ public class GridManager : MonoBehaviour
                     }
                     else
                     {
-                        // Handle the case where there are not enough existing tiles
-                        Debug.LogError("Not enough existing tiles to update the grid.");
                         return;
                     }
                 }

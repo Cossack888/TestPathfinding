@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using static UnityEditor.PlayerSettings;
 
 public class ClickManager : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class ClickManager : MonoBehaviour
     private Camera _mainCamera;
     private RaycastHit _hit;
     [SerializeField] LayerMask ObjectsLayer;
+    public Vector3 targetPosition;
     void Start()
     {
         _mainCamera = Camera.main;
@@ -30,13 +32,15 @@ public class ClickManager : MonoBehaviour
     {
         UnitSelectionManager.Instance.SelectUnit(RaycastSent().GetComponent<Unit>());
     }
+
     public void RightClick()
     {
         Unit currentUnit = UnitSelectionManager.Instance.GetCurrentUnit();
         GameObject clickableObject = RaycastSent();
-        if (currentUnit != null && clickableObject != null)
+
+        if (currentUnit != null)
         {
-            if (clickableObject.TryGetComponent<OverlayTile>(out OverlayTile tile))
+            if (clickableObject != null && clickableObject.TryGetComponent<OverlayTile>(out OverlayTile tile))
             {
                 currentUnit.moveAction.MoveToTile(tile);
             }
@@ -45,8 +49,31 @@ public class ClickManager : MonoBehaviour
                 currentUnit.moveAction.MoveToTile(CheckForNearestTile());
             }
         }
-
     }
+
+    public Vector3 GetTarget()
+    {
+        return targetPosition;
+    }
+
+    public OverlayTile GetNearestTile()
+    {
+        OverlayTile nearestTile = null;
+        float nearestDistance = Mathf.Infinity;
+
+        foreach (OverlayTile tile in GridManager.Instance.tiles)
+        {
+            float distance = Vector3.Distance(targetPosition, tile.transform.position);
+
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestTile = tile;
+            }
+        }
+        return nearestTile;
+    }
+
     public OverlayTile CheckForNearestTile()
     {
         if (!EventSystem.current.IsPointerOverGameObject())
@@ -56,6 +83,7 @@ public class ClickManager : MonoBehaviour
             if (Physics.Raycast(ray, out _hit, 2000f, ObjectsLayer))
             {
                 Vector3 pos = _hit.point;
+                targetPosition = pos;
                 OverlayTile nearestTile = null;
                 float nearestDistance = Mathf.Infinity;
 
@@ -69,7 +97,6 @@ public class ClickManager : MonoBehaviour
                         nearestTile = tile;
                     }
                 }
-
                 return nearestTile;
             }
         }

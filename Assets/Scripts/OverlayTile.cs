@@ -56,6 +56,14 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
         }
         return -compare;
     }
+    private void OnMouseEnter()
+    {
+        if (walkable) SetColor(Color.cyan);
+    }
+    private void OnMouseExit()
+    {
+        if (walkable) ResetColor();
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent<Unit>(out Unit unit) && !blocked)
