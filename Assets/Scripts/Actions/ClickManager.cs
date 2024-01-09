@@ -36,9 +36,45 @@ public class ClickManager : MonoBehaviour
         GameObject clickableObject = RaycastSent();
         if (currentUnit != null && clickableObject != null)
         {
-            currentUnit.GetComponent<MoveAction>().Move(clickableObject.transform.position);
+            if (clickableObject.TryGetComponent<OverlayTile>(out OverlayTile tile))
+            {
+                currentUnit.moveAction.MoveToTile(tile);
+            }
+            else
+            {
+                currentUnit.moveAction.MoveToTile(CheckForNearestTile());
+            }
         }
 
+    }
+    public OverlayTile CheckForNearestTile()
+    {
+        if (!EventSystem.current.IsPointerOverGameObject())
+        {
+            Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out _hit, 2000f, ObjectsLayer))
+            {
+                Vector3 pos = _hit.point;
+                OverlayTile nearestTile = null;
+                float nearestDistance = Mathf.Infinity;
+
+                foreach (OverlayTile tile in GridManager.Instance.tiles)
+                {
+                    float distance = Vector3.Distance(pos, tile.transform.position);
+
+                    if (distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearestTile = tile;
+                    }
+                }
+
+                return nearestTile;
+            }
+        }
+
+        return null;
     }
 
     public GameObject RaycastSent()

@@ -13,7 +13,8 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
     public int gCost;
     public int hCost;
     private int heapIndex;
-    private Unit currentUnit;
+    public Unit currentUnit;
+    public OverlayTile parent;
     public MeshRenderer tempRenderer;
     public Color neutralColor;
     public OverlayTile SetTile(bool walkable, Vector3 worldPos, int gridX, int gridY)
@@ -59,16 +60,23 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
     {
         if (other.TryGetComponent<Unit>(out Unit unit) && !blocked)
         {
+
             currentUnit = unit;
+            unit.moveAction.MovedOneTile(this);
+            unit.SetCurrentTile(this);
             blocked = true;
+            if (unit.moveAction.path.Count == 0 && UnitSelectionManager.Instance.currentUnit == unit)
+            {
+                UnitSelectionManager.Instance.ResetGrid();
+            }
         }
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.TryGetComponent<Unit>(out Unit unit) && blocked && currentUnit != unit)
+        /*if (other.TryGetComponent<Unit>(out Unit unit) && currentUnit == unit && unit.moveAction.path.Count == 0)
         {
-            //unit.GetComponent<MoveAction>().Move();
-        }
+            unit.moveAction.Move(transform.position);
+        }*/
     }
     private void OnTriggerExit(Collider other)
     {

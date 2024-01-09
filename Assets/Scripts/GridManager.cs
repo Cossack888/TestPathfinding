@@ -15,7 +15,7 @@ public class GridManager : MonoBehaviour
     public List<OverlayTile> tiles;
     float nodeDiameter;
     int gridSizeX, gridSizeY;
-
+    public List<OverlayTile> path;
     private void Awake()
     {
         if (Instance != null)
@@ -42,16 +42,7 @@ public class GridManager : MonoBehaviour
             return gridSizeX * gridSizeY;
         }
     }
-    public void DestroyGrid()
-    {
-        if (tiles.Count > 0)
-        {
-            foreach (OverlayTile tile in tiles)
-            {
-                Destroy(tile.gameObject);
-            }
-        }
-    }
+
 
     public void CreateGrid()
     {
@@ -66,6 +57,7 @@ public class GridManager : MonoBehaviour
     }
     public void MoveGrid()
     {
+        TilesManager manager = TilesManager.Instance;
         Vector3 basePosition = UnitSelectionManager.Instance.GetCurrentUnit().transform.position;
         Vector3 worldBottomLeft = new Vector3(basePosition.x, 0.05f, basePosition.z) - Vector3.right * gridWorldSize.x / 2 - Vector3.forward * gridWorldSize.y / 2;
         grid = new OverlayTile[gridSizeX, gridSizeY];
@@ -89,6 +81,7 @@ public class GridManager : MonoBehaviour
                         tileIndex++; // Move to the next tile in the list
 
                         tile.SetTile(walkable, worldPoint, x, y);
+                        manager.SetTilesMap(worldPoint, tile);
                         tile.SetColor(tile.neutralColor);
                         tile.name = worldPoint.ToString();
                         if (!tile.walkable)

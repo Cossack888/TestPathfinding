@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class UnitSelectionManager : MonoBehaviour
 {
-    Unit currentUnit;
+    public Unit currentUnit;
     public static UnitSelectionManager Instance { get; private set; }
     private void Awake()
     {
@@ -22,15 +22,19 @@ public class UnitSelectionManager : MonoBehaviour
     }
     public void SetCurrentUnit(Unit unit)
     {
-        GridManager grid = GridManager.Instance;
+
         currentUnit = unit;
-        Debug.Log(grid.tiles.Count);
+        ResetGrid();
+
+    }
+    public void ResetGrid()
+    {
+        GridManager grid = GridManager.Instance;
         if (grid.tiles.Count == 0)
         {
             grid.CreateGrid();
         }
         grid.MoveGrid();
-
     }
     public Unit GetCurrentUnit()
     {
