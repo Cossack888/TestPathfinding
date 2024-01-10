@@ -5,6 +5,8 @@ using UnityEngine;
 public class UnitSelectionManager : MonoBehaviour
 {
     public Unit currentUnit;
+    public MoveAction sourceUnitMoveAction;
+    public MoveAction destinationUnitMoveAction;
     public static UnitSelectionManager Instance { get; private set; }
     private void Awake()
     {

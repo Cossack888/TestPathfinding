@@ -22,9 +22,10 @@ public class PathFinder : MonoBehaviour
         grid = FindObjectOfType<GridManager>();
         tiles = new List<OverlayTile>();
     }
-    public void FindPath(Vector3 startPos, Vector3 targetPos, out int length)
+    public void FindPath(Unit unit, Vector3 startPos, Vector3 targetPos, out int length)
     {
-        OverlayTile startNode = TilesManager.Instance.GetTilesMap()[startPos];
+        //OverlayTile startNode = TilesManager.Instance.GetTilesMap()[startPos];
+        OverlayTile startNode = unit.currentTile;
         OverlayTile targetNode = TilesManager.Instance.GetTilesMap()[targetPos];
 
         Heap<OverlayTile> openSet = new Heap<OverlayTile>(grid.MaxSize);
@@ -38,7 +39,7 @@ public class PathFinder : MonoBehaviour
 
             if (currentNode == targetNode)
             {
-                RetracePath(startNode, targetNode, out int pathLength);
+                RetracePath(unit, startNode, targetNode, out int pathLength);
                 length = pathLength;
                 return;
             }
@@ -65,7 +66,7 @@ public class PathFinder : MonoBehaviour
         length = 0;
     }
 
-    void RetracePath(OverlayTile startNode, OverlayTile endNode, out int length)
+    void RetracePath(Unit unit, OverlayTile startNode, OverlayTile endNode, out int length)
     {
         List<OverlayTile> path = new List<OverlayTile>();
         OverlayTile currentNode = endNode;
@@ -78,7 +79,8 @@ public class PathFinder : MonoBehaviour
         }
         path.Reverse();
         length = path.Count;
-        grid.path = path;
+        //grid.path = path;
+        unit.moveAction.path = path;
 
     }
 

@@ -21,6 +21,18 @@ public class TilesManager : MonoBehaviour
         tilesMap = new Dictionary<Vector3, OverlayTile>();
     }
 
+    public void AddTileToAllTiles(OverlayTile tile)
+    {
+        allTiles.Add(tile);
+    }
+    public void ClearAllTiles()
+    {
+        allTiles.Clear();
+    }
+    public List<OverlayTile> GetAllTiles()
+    {
+        return allTiles;
+    }
     public void RemoveObstacleTiles(OverlayTile tile)
     {
         tile.walkable = true;

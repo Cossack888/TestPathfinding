@@ -5,6 +5,7 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
     public OverlayTile currentTile;
+    public OverlayTile targetTile;
     public MoveAction moveAction { get; private set; }
     private void Start()
     {

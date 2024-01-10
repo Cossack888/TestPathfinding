@@ -51,7 +51,9 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < gridSizeY; y++)
             {
                 Transform gridTile = Instantiate(gridSystemVisualSinglePrefab, transform.position, Quaternion.identity, gameObject.transform);
-                tiles.Add(gridTile.GetComponent<OverlayTile>());
+                OverlayTile tile = gridTile.GetComponent<OverlayTile>();
+                tiles.Add(tile);
+                TilesManager.Instance.AddTileToAllTiles(tile);
             }
         }
     }

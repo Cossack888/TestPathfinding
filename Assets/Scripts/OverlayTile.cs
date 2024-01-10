@@ -17,6 +17,7 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
     public OverlayTile parent;
     public MeshRenderer tempRenderer;
     public Color neutralColor;
+    public bool targetOfFollower;
     public OverlayTile SetTile(bool walkable, Vector3 worldPos, int gridX, int gridY)
     {
         this.walkable = walkable;
@@ -56,6 +57,10 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
         }
         return -compare;
     }
+    /*private void Update()
+    {
+        if (targetOfFollower) { SetColor(Color.green); }
+    }*/
     private void OnMouseEnter()
     {
         if (walkable) SetColor(Color.cyan);
@@ -73,10 +78,22 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
             unit.moveAction.MovedOneTile(this);
             unit.SetCurrentTile(this);
             blocked = true;
-            if (unit.moveAction.path.Count == 0 && UnitSelectionManager.Instance.currentUnit == unit)
-            {
-                UnitSelectionManager.Instance.ResetGrid();
-            }
+
+
+            /* if (targetOfFollower && UnitSelectionManager.Instance.currentUnit != unit)
+             {
+                 targetOfFollower = false;
+                 unit.moveAction.path.Clear();
+             }
+             /*
+             if (unit.moveAction.path.Count == 0 && UnitSelectionManager.Instance.currentUnit == unit)
+             {
+                 UnitSelectionManager.Instance.ResetGrid();
+             }*/
+        }
+        else
+        {
+            unit.moveAction.MoveToTile(unit.targetTile);
         }
     }
     private void OnTriggerStay(Collider other)

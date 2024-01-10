@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 
@@ -49,7 +50,10 @@ public class MoveAction : MonoBehaviour
         {
             Move(path[0].worldPosition);
         }
+
     }
+
+
     public void MovedOneTile(OverlayTile tile)
     {
         if (path.Contains(tile))
@@ -72,9 +76,38 @@ public class MoveAction : MonoBehaviour
 
     public void MoveToTile(OverlayTile tile)
     {
-        PathFinder.Instance.FindPath(unit.currentTile.worldPosition, tile.worldPosition, out int pathlength);
-        path = GridManager.Instance.path;
-        PathFinder.Instance.HighlightPath(path);
-    }
+        if (unit.currentTile != null)
+        {
+            Debug.Log($"unit: {unit}");
+            PathFinder.Instance.FindPath(unit, unit.currentTile.worldPosition, tile.worldPosition, out int pathlength);
+            //path = GridManager.Instance.path;
+            PathFinder.Instance.HighlightPath(path);
+        }
+        else
+        {
+            Move(FindClosestTileToUnit(unit).worldPosition);
+        }
 
+    }
+    public OverlayTile FindClosestTileToUnit(Unit unit)
+    {
+        OverlayTile closestTile = null;
+        float minDistance = float.MaxValue;
+
+        foreach (OverlayTile tile in TilesManager.Instance.GetAllTiles())
+        {
+            if (!tile.walkable || tile.blocked)
+                continue;
+
+            float distance = Vector3.Distance(unit.transform.position, tile.worldPosition);
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestTile = tile;
+            }
+        }
+
+        return closestTile;
+    }
 }

@@ -43,11 +43,42 @@ public class ClickManager : MonoBehaviour
             if (clickableObject != null && clickableObject.TryGetComponent<OverlayTile>(out OverlayTile tile))
             {
                 currentUnit.moveAction.MoveToTile(tile);
+
+                List<OverlayTile> tilesList = GridManager.Instance.GetNeighbours(tile);
+
+                foreach (Unit unit in FindObjectsOfType<Unit>())
+                {
+                    Debug.Log($"{unit.name} Position: {unit.transform.position}, Target Position: {clickableObject.transform.position}");
+
+                    if (unit != currentUnit && unit.moveAction.path.Count == 0)
+                    {
+                        if (tilesList.Count > 0)
+                        {
+                            OverlayTile chosenTile = tilesList[0];
+                            tilesList.RemoveAt(0);
+                            unit.targetTile = chosenTile;
+                            StartCoroutine(Follow(1, unit, chosenTile));
+                        }
+                        else
+                        {
+                            Debug.LogWarning("No more available tiles to assign.");
+                            break;
+                        }
+                    }
+                }
             }
             else
             {
                 currentUnit.moveAction.MoveToTile(CheckForNearestTile());
             }
+        }
+    }
+    IEnumerator Follow(float waitTime, Unit unit, OverlayTile tile)
+    {
+        yield return new WaitForSeconds(waitTime);
+        if (unit.moveAction.path.Count == 0)
+        {
+            unit.moveAction.MoveToTile(tile);
         }
     }
 
