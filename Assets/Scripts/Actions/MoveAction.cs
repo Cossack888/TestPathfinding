@@ -10,10 +10,13 @@ public class MoveAction : MonoBehaviour
     Rigidbody rb;
     Vector3 moveDir;
     Vector3 targetPosition;
+    public float rotationSpeed = 180f;
+    public float Velocity { get; private set; }
     [SerializeField] int speed;
     Animator anim;
     public List<OverlayTile> path;
     Unit unit;
+    float mobility;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +25,7 @@ public class MoveAction : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         path = new List<OverlayTile>();
         unit = GetComponent<Unit>();
+        mobility = unit.mobility;
     }
 
 
@@ -44,8 +48,8 @@ public class MoveAction : MonoBehaviour
             moveDir = Vector3.zero;
         }
 
-        float velocity = Mathf.Max(Mathf.Abs(moveDir.x), Mathf.Abs(moveDir.z));
-        anim.SetFloat("Velocity", velocity);
+        Velocity = Mathf.Max(Mathf.Abs(moveDir.x), Mathf.Abs(moveDir.z));
+        anim.SetFloat("Velocity", Velocity);
         if (path.Count > 0)
         {
             Move(path[0].worldPosition);
@@ -68,20 +72,34 @@ public class MoveAction : MonoBehaviour
         rb.MovePosition(transform.position + moveDir * speed * Time.deltaTime);
     }
 
+    public void RotateTowardsTarget(Vector3 target)
+    {
+        // Calculate the rotation needed to face the target
+        Quaternion targetRotation = Quaternion.LookRotation(target - transform.position);
+
+        // Calculate the rotation step based on mobility and time
+        float step = rotationSpeed * mobility * Time.deltaTime;
+
+        // Rotate towards the target
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, step);
+    }
+
 
     public void Move(Vector3 targetPosition)
     {
         this.targetPosition = targetPosition;
+        RotateTowardsTarget(new Vector3(path[0].transform.position.x, transform.position.y, path[0].transform.position.z));
     }
 
     public void MoveToTile(OverlayTile tile)
     {
         if (unit.currentTile != null)
         {
-            Debug.Log($"unit: {unit}");
+
             PathFinder.Instance.FindPath(unit, unit.currentTile.worldPosition, tile.worldPosition, out int pathlength);
             //path = GridManager.Instance.path;
             PathFinder.Instance.HighlightPath(path);
+
         }
         else
         {

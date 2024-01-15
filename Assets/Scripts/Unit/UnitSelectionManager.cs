@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class UnitSelectionManager : MonoBehaviour
 {
     public Unit currentUnit;
+    public Unit[] units;
     public MoveAction sourceUnitMoveAction;
     public MoveAction destinationUnitMoveAction;
+    public bool gridWasReset;
     public static UnitSelectionManager Instance { get; private set; }
     private void Awake()
     {
@@ -17,6 +20,11 @@ public class UnitSelectionManager : MonoBehaviour
             return;
         }
         Instance = this;
+        units = FindObjectsOfType<Unit>();
+    }
+    public bool AreAnyUnitsMoving()
+    {
+        return units.Any(unit => unit.moveAction.Velocity > 0.1f);
     }
     public void SelectUnit(Unit unit)
     {
@@ -26,18 +34,29 @@ public class UnitSelectionManager : MonoBehaviour
     {
 
         currentUnit = unit;
+
         ResetGrid();
 
     }
+    /*private void Update()
+    {
+        if (!AreAnyUnitsMoving() && !gridWasReset && currentUnit != null)
+        {
+            ResetGrid();
+            gridWasReset = true;
+        }
+    }*/
     public void ResetGrid()
     {
         GridManager grid = GridManager.Instance;
-        if (grid.tiles.Count == 0)
+        foreach (Unit tempUnit in FindObjectsOfType<Unit>())
         {
-            grid.CreateGrid();
+            tempUnit.moveAction.path.Clear();
+            tempUnit.ResetTargetTile();
         }
+        grid.DestroyGrid();
+        grid.CreateGrid();
 
-        grid.MoveGrid();
     }
     public Unit GetCurrentUnit()
     {

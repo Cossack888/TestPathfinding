@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using static UnityEditor.PlayerSettings;
@@ -42,44 +43,56 @@ public class ClickManager : MonoBehaviour
         {
             if (clickableObject != null && clickableObject.TryGetComponent<OverlayTile>(out OverlayTile tile))
             {
-                currentUnit.moveAction.MoveToTile(tile);
-
-                List<OverlayTile> tilesList = GridManager.Instance.GetNeighbours(tile);
-
                 foreach (Unit unit in FindObjectsOfType<Unit>())
                 {
-                    Debug.Log($"{unit.name} Position: {unit.transform.position}, Target Position: {clickableObject.transform.position}");
-
-                    if (unit != currentUnit && unit.moveAction.path.Count == 0)
-                    {
-                        if (tilesList.Count > 0)
-                        {
-                            OverlayTile chosenTile = tilesList[0];
-                            tilesList.RemoveAt(0);
-                            unit.targetTile = chosenTile;
-                            StartCoroutine(Follow(1, unit, chosenTile));
-                        }
-                        else
-                        {
-                            Debug.LogWarning("No more available tiles to assign.");
-                            break;
-                        }
-                    }
+                    unit.moveAction.path.Clear();
                 }
+                currentUnit.SetTargetTile(tile);
+                currentUnit.moveAction.MoveToTile(tile);
+                ChooseNeighboringTile(currentUnit);
+
+
             }
             else
             {
                 currentUnit.moveAction.MoveToTile(CheckForNearestTile());
+                currentUnit.SetTargetTile(CheckForNearestTile());
+                ChooseNeighboringTile(currentUnit);
             }
         }
     }
+
+    public void ChooseNeighboringTile(Unit currentUnit)
+    {
+        List<OverlayTile> tilesList = GridManager.Instance.GetNeighbours(currentUnit.targetTile);
+
+        foreach (Unit unit in FindObjectsOfType<Unit>())
+        {
+
+            if (unit != currentUnit)
+            {
+                if (tilesList.Count > 0)
+                {
+                    OverlayTile chosenTile = tilesList[0];
+                    tilesList.RemoveAt(0);
+                    unit.SetTargetTile(chosenTile);
+                    StartCoroutine(Follow(1.5f, unit, chosenTile));
+                }
+                else
+                {
+                    Debug.LogWarning("No more available tiles to assign.");
+                    break;
+                }
+            }
+        }
+    }
+
     IEnumerator Follow(float waitTime, Unit unit, OverlayTile tile)
     {
         yield return new WaitForSeconds(waitTime);
-        if (unit.moveAction.path.Count == 0)
-        {
-            unit.moveAction.MoveToTile(tile);
-        }
+
+        unit.moveAction.MoveToTile(tile);
+        unit.MoveToTargetTile();
     }
 
     public Vector3 GetTarget()
@@ -117,7 +130,7 @@ public class ClickManager : MonoBehaviour
                 targetPosition = pos;
                 OverlayTile nearestTile = null;
                 float nearestDistance = Mathf.Infinity;
-
+                Debug.Log(GridManager.Instance.tiles.Count);
                 foreach (OverlayTile tile in GridManager.Instance.tiles)
                 {
                     float distance = Vector3.Distance(pos, tile.transform.position);

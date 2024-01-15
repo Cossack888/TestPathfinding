@@ -25,6 +25,10 @@ public class TilesManager : MonoBehaviour
     {
         allTiles.Add(tile);
     }
+    public void RemoveTileFromAllTiles(OverlayTile tile)
+    {
+        allTiles.Remove(tile);
+    }
     public void ClearAllTiles()
     {
         allTiles.Clear();

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 9015656075906966866}
   - component: {fileID: 8769505370577126548}
   - component: {fileID: -6085198028082453008}
-  m_Layer: 7
+  m_Layer: 9
   m_Name: Plane (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,3 +130,4 @@ MonoBehaviour:
   parent: {fileID: 0}
   tempRenderer: {fileID: 9015656075906966866}
   neutralColor: {r: 0, g: 0, b: 0, a: 0}
+  targetOfFollower: 0

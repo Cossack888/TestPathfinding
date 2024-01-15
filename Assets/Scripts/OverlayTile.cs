@@ -18,6 +18,7 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
     public MeshRenderer tempRenderer;
     public Color neutralColor;
     public bool targetOfFollower;
+    UnitSelectionManager manager;
     public OverlayTile SetTile(bool walkable, Vector3 worldPos, int gridX, int gridY)
     {
         this.walkable = walkable;
@@ -47,6 +48,7 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
     private void Start()
     {
         tempRenderer = GetComponent<MeshRenderer>();
+        manager = UnitSelectionManager.Instance;
     }
     public int CompareTo(OverlayTile nodeToCompare)
     {
@@ -71,8 +73,11 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent<Unit>(out Unit unit) && !blocked)
+
+
+        if ((other.TryGetComponent<Unit>(out Unit unit) && !blocked && unit.targetTile != this))
         {
+
 
             currentUnit = unit;
             unit.moveAction.MovedOneTile(this);
@@ -84,25 +89,27 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
              {
                  targetOfFollower = false;
                  unit.moveAction.path.Clear();
-             }
-             /*
-             if (unit.moveAction.path.Count == 0 && UnitSelectionManager.Instance.currentUnit == unit)
-             {
-                 UnitSelectionManager.Instance.ResetGrid();
              }*/
+
+
         }
         else
         {
-            unit.moveAction.MoveToTile(unit.targetTile);
+            if (unit.targetTile == this)
+            {
+                manager.gridWasReset = false;
+            }
+            else
+            {
+                unit.moveAction.MoveToTile(unit.targetTile);
+            }
+
         }
     }
-    private void OnTriggerStay(Collider other)
+    /*private void OnTriggerStay(Collider other)
     {
-        /*if (other.TryGetComponent<Unit>(out Unit unit) && currentUnit == unit && unit.moveAction.path.Count == 0)
-        {
-            unit.moveAction.Move(transform.position);
-        }*/
-    }
+        
+    }*/
     private void OnTriggerExit(Collider other)
     {
         if (other.TryGetComponent<Unit>(out Unit unit))

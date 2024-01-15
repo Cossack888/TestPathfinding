@@ -43,64 +43,62 @@ public class GridManager : MonoBehaviour
         }
     }
 
-
-    public void CreateGrid()
+    public void DestroyGrid()
     {
-        for (int x = 0; x < gridSizeX; x++)
+        List<OverlayTile> tilesCopy = new List<OverlayTile>(TilesManager.Instance.GetAllTiles());
+
+        foreach (OverlayTile tile in tilesCopy)
         {
-            for (int y = 0; y < gridSizeY; y++)
+            if (tile != null)
             {
-                Transform gridTile = Instantiate(gridSystemVisualSinglePrefab, transform.position, Quaternion.identity, gameObject.transform);
-                OverlayTile tile = gridTile.GetComponent<OverlayTile>();
-                tiles.Add(tile);
-                TilesManager.Instance.AddTileToAllTiles(tile);
+                TilesManager.Instance.RemoveTileFromAllTiles(tile);
+                Destroy(tile.gameObject);
             }
         }
     }
-    public void MoveGrid()
+    public void CreateGrid()
     {
-        TilesManager manager = TilesManager.Instance;
-        Vector3 basePosition = UnitSelectionManager.Instance.GetCurrentUnit().transform.position;
+        Unit currentUnit = UnitSelectionManager.Instance.GetCurrentUnit();
+        Vector3 basePosition = currentUnit.transform.position;
         Vector3 worldBottomLeft = new Vector3(basePosition.x, 0.05f, basePosition.z) - Vector3.right * gridWorldSize.x / 2 - Vector3.forward * gridWorldSize.y / 2;
         grid = new OverlayTile[gridSizeX, gridSizeY];
 
-        int tileIndex = 0;
 
         for (int x = 0; x < gridSizeX; x++)
         {
             for (int y = 0; y < gridSizeY; y++)
             {
+
                 Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.forward * (y * nodeDiameter + nodeRadius);
                 bool walkable = !(Physics.CheckSphere(worldPoint, 0.7f, unwalkableMask));
                 bool isOnFloor = (Physics.CheckSphere(worldPoint, 0.5f, floorMask));
 
                 if (isOnFloor)
                 {
+                    Transform gridTile = Instantiate(gridSystemVisualSinglePrefab, worldPoint, Quaternion.identity, gameObject.transform);
+                    gridTile.name = worldPoint.ToString();
+                    OverlayTile tile = gridTile.GetComponent<OverlayTile>();
 
-                    if (tileIndex < tiles.Count)
+                    tile.SetTile(walkable, worldPoint, x, y);
+                    tile.SetColor(tile.neutralColor);
+                    if (!tile.walkable)
                     {
-                        OverlayTile tile = tiles[tileIndex];
-                        tileIndex++;
-
-                        tile.SetTile(walkable, worldPoint, x, y);
-                        manager.SetTilesMap(worldPoint, tile);
-                        tile.SetColor(tile.neutralColor);
-                        tile.name = worldPoint.ToString();
-                        if (!tile.walkable)
-                        {
-                            tile.SetColor(Color.red);
-                        }
-
-                        grid[x, y] = tile;
-                        tile.transform.position = worldPoint;
+                        tile.SetColor(Color.red);
                     }
                     else
                     {
-                        return;
+                        TilesManager.Instance.AddTileToAllTiles(tile);
+                        tiles.Add(tile);
                     }
+                    TilesManager.Instance.SetTilesMap(worldPoint, tile);
+                    grid[x, y] = tile;
                 }
+
+
+
             }
         }
+
     }
 
 
