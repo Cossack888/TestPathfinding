@@ -6,8 +6,6 @@ using UnityEngine.UI;
 public class PathFinder : MonoBehaviour
 {
     public static PathFinder Instance { get; private set; }
-    public Transform seeker, target;
-    public List<OverlayTile> tiles;
     GridManager grid;
 
     private void Awake()
@@ -20,12 +18,10 @@ public class PathFinder : MonoBehaviour
         }
         Instance = this;
         grid = FindObjectOfType<GridManager>();
-        tiles = new List<OverlayTile>();
     }
-    public void FindPath(Unit unit, Vector3 startPos, Vector3 targetPos, out int length)
+    public void FindPath(Unit unit, Vector3 startPos, Vector3 targetPos, out List<OverlayTile> pathNodesAll)
     {
-        //OverlayTile startNode = TilesManager.Instance.GetTilesMap()[startPos];
-        OverlayTile startNode = unit.currentTile;
+        OverlayTile startNode = unit.CurrentTile;
         OverlayTile targetNode = TilesManager.Instance.GetTilesMap()[targetPos];
 
         Heap<OverlayTile> openSet = new Heap<OverlayTile>(grid.MaxSize);
@@ -39,34 +35,32 @@ public class PathFinder : MonoBehaviour
 
             if (currentNode == targetNode)
             {
-                RetracePath(unit, startNode, targetNode, out int pathLength);
-                length = pathLength;
+                RetracePath(unit, startNode, targetNode, out List<OverlayTile> pathNodes);
+                pathNodesAll = pathNodes;
                 return;
             }
 
             foreach (OverlayTile neighbour in grid.GetNeighbours(currentNode))
             {
 
-                if (neighbour == null || !neighbour.walkable || (neighbour.blocked && neighbour.currentUnit != startNode.currentUnit) || closedSet.Contains(neighbour))
+                if (neighbour == null || !neighbour.Walkable || (neighbour.Blocked && neighbour.CurrentUnit != startNode.CurrentUnit) || closedSet.Contains(neighbour))
                 {
                     continue;
                 }
-                int newMovementCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
-                if (newMovementCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
+                int newMovementCostToNeighbour = currentNode.GCost + GetDistance(currentNode, neighbour);
+                if (newMovementCostToNeighbour < neighbour.GCost || !openSet.Contains(neighbour))
                 {
-                    neighbour.gCost = newMovementCostToNeighbour;
-                    neighbour.hCost = GetDistance(neighbour, targetNode);
-                    neighbour.parent = currentNode;
+                    neighbour.SetCosts(newMovementCostToNeighbour, GetDistance(neighbour, targetNode), currentNode);
 
                     if (!openSet.Contains(neighbour))
                         openSet.Add(neighbour);
                 }
             }
         }
-        length = 0;
+        pathNodesAll = null;
     }
 
-    void RetracePath(Unit unit, OverlayTile startNode, OverlayTile endNode, out int length)
+    void RetracePath(Unit unit, OverlayTile startNode, OverlayTile endNode, out List<OverlayTile> pathNodes)
     {
         List<OverlayTile> path = new List<OverlayTile>();
         OverlayTile currentNode = endNode;
@@ -74,20 +68,19 @@ public class PathFinder : MonoBehaviour
         while (currentNode != startNode)
         {
             path.Add(currentNode);
-            tiles.Add(currentNode);
-            currentNode = currentNode.parent;
+            currentNode = currentNode.Parent;
         }
         path.Reverse();
-        length = path.Count;
-        //grid.path = path;
-        unit.moveAction.path = path;
+        pathNodes = path;
 
     }
 
+
+
     int GetDistance(OverlayTile nodeA, OverlayTile nodeB)
     {
-        int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
-        int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY);
+        int dstX = Mathf.Abs(nodeA.GridX - nodeB.GridX);
+        int dstY = Mathf.Abs(nodeA.GridY - nodeB.GridY);
 
         if (dstX > dstY)
             return 14 * dstY + 10 * (dstX - dstY);

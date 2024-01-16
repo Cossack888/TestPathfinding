@@ -8,16 +8,19 @@ using static UnityEditor.PlayerSettings;
 public class ClickManager : MonoBehaviour
 {
     public static ClickManager Instance { get; private set; }
+
     private Camera _mainCamera;
     private RaycastHit _hit;
     [SerializeField] LayerMask ObjectsLayer;
     public Vector3 targetPosition;
+
     void Start()
     {
         _mainCamera = Camera.main;
         InputManager.Instance.LeftClickEvent += LeftClick;
         InputManager.Instance.RightClickEvent += RightClick;
     }
+
     private void Awake()
     {
         if (Instance != null)
@@ -31,7 +34,10 @@ public class ClickManager : MonoBehaviour
 
     public void LeftClick()
     {
-        UnitSelectionManager.Instance.SelectUnit(RaycastSent().GetComponent<Unit>());
+        if (RaycastSent() != null && RaycastSent().TryGetComponent<Unit>(out Unit unit))
+        {
+            UnitSelectionManager.Instance.SelectUnit(unit);
+        }
     }
 
     public void RightClick()
@@ -43,20 +49,16 @@ public class ClickManager : MonoBehaviour
         {
             if (clickableObject != null && clickableObject.TryGetComponent<OverlayTile>(out OverlayTile tile))
             {
-                foreach (Unit unit in FindObjectsOfType<Unit>())
-                {
-                    unit.moveAction.path.Clear();
-                }
                 currentUnit.SetTargetTile(tile);
-                currentUnit.moveAction.MoveToTile(tile);
+                currentUnit.MoveAction.MoveToTile(tile);
                 ChooseNeighboringTile(currentUnit);
-
-
             }
             else
             {
-                currentUnit.moveAction.MoveToTile(CheckForNearestTile());
-                currentUnit.SetTargetTile(CheckForNearestTile());
+                OverlayTile nearestTile = CheckForNearestTile();
+
+                currentUnit.SetTargetTile(nearestTile);
+                currentUnit.MoveAction.MoveToTile(nearestTile);
                 ChooseNeighboringTile(currentUnit);
             }
         }
@@ -64,20 +66,17 @@ public class ClickManager : MonoBehaviour
 
     public void ChooseNeighboringTile(Unit currentUnit)
     {
-        List<OverlayTile> tilesList = GridManager.Instance.GetNeighbours(currentUnit.targetTile);
+        List<OverlayTile> tilesList = GridManager.Instance.GetNeighbours(currentUnit.TargetTile);
 
         foreach (Unit unit in FindObjectsOfType<Unit>())
         {
-
             if (unit != currentUnit)
             {
-                if (tilesList.Count > 0)
+                OverlayTile chosenTile = ChooseRandomTile(tilesList);
+                if (chosenTile != null)
                 {
-                    OverlayTile chosenTile = tilesList[0];
-                    tilesList.RemoveAt(0);
                     unit.SetTargetTile(chosenTile);
                     StartCoroutine(Follow(1.5f, unit, chosenTile));
-                    //unit.CorrectCourse(currentUnit);
                 }
                 else
                 {
@@ -92,8 +91,7 @@ public class ClickManager : MonoBehaviour
     {
         if (tilesList.Count > 0)
         {
-            OverlayTile chosenTile = tilesList[Random.Range(0, tilesList.Count)];
-            return chosenTile;
+            return tilesList[Random.Range(0, tilesList.Count)];
         }
         else
         {
@@ -102,14 +100,10 @@ public class ClickManager : MonoBehaviour
         }
     }
 
-
-
     IEnumerator Follow(float waitTime, Unit unit, OverlayTile tile)
     {
         yield return new WaitForSeconds(waitTime);
-
-        unit.moveAction.MoveToTile(tile);
-        //unit.MoveToTargetTile();
+        unit.MoveAction.MoveToTile(tile);
     }
 
     public Vector3 GetTarget()
@@ -122,7 +116,7 @@ public class ClickManager : MonoBehaviour
         OverlayTile nearestTile = null;
         float nearestDistance = Mathf.Infinity;
 
-        foreach (OverlayTile tile in GridManager.Instance.tiles)
+        foreach (OverlayTile tile in GridManager.Instance.Tiles)
         {
             float distance = Vector3.Distance(targetPosition, tile.transform.position);
 
@@ -147,8 +141,7 @@ public class ClickManager : MonoBehaviour
                 targetPosition = pos;
                 OverlayTile nearestTile = null;
                 float nearestDistance = Mathf.Infinity;
-                Debug.Log(GridManager.Instance.tiles.Count);
-                foreach (OverlayTile tile in GridManager.Instance.tiles)
+                foreach (OverlayTile tile in GridManager.Instance.Tiles)
                 {
                     float distance = Vector3.Distance(pos, tile.transform.position);
 

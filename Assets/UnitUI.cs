@@ -6,14 +6,10 @@ using UnityEngine.UI;
 
 public class UnitUI : MonoBehaviour
 {
-    public GameObject portraitPrefab;
-    private void Start()
-    {
-        SetUpPortraits();
-    }
+    [SerializeField] GameObject portraitPrefab;
     public void SetUpPortraits()
     {
-        foreach (Unit unit in UnitSelectionManager.Instance.units)
+        foreach (Unit unit in UnitSelectionManager.Instance.Units)
         {
             GameObject portrait = Instantiate(portraitPrefab, transform.position, transform.rotation, gameObject.transform);
             portrait.GetComponentInChildren<Image>().sprite = unit.Id.Face;

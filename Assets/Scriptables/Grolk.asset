@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Face: {fileID: 21300000, guid: eca9bd60e8bb30245ab4a42b6bbd6a7d, type: 3}
   unitName: Grolk
-  unitType: Barbarian
+  unitBodyType: 2

@@ -1,35 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
-
 
 public class MoveAction : MonoBehaviour
 {
     Rigidbody rb;
     Vector3 moveDir;
     Vector3 targetPosition;
-    public float rotationSpeed = 180f;
+    [SerializeField] float rotationSpeed = 180f;
     public float Velocity { get; private set; }
-    [SerializeField] int speed;
+    int speed;
     Animator anim;
-    public List<OverlayTile> path;
+    List<OverlayTile> path;
     Unit unit;
     float mobility;
 
-    // Start is called before the first frame update
     void Start()
     {
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody>();
         path = new List<OverlayTile>();
         unit = GetComponent<Unit>();
-        mobility = unit.mobility;
+        mobility = Random.Range(1, 5);
+        speed = Random.Range(5, 10);
+        StartCoroutine(ContinuousMovementCheck());
+
     }
-
-
-
+    public void ClearPath()
+    {
+        path.Clear();
+    }
     private void LateUpdate()
     {
         if (targetPosition != Vector3.zero)
@@ -50,20 +50,24 @@ public class MoveAction : MonoBehaviour
 
         Velocity = Mathf.Max(Mathf.Abs(moveDir.x), Mathf.Abs(moveDir.z));
         anim.SetFloat("Velocity", Velocity);
+
         if (path.Count > 0)
         {
-            Move(path[0].worldPosition);
+            Move(path[0].WorldPosition);
+            RotateTowardsTarget(targetPosition);
         }
 
     }
-
-
-    public void MovedOneTile(OverlayTile tile)
+    private IEnumerator ContinuousMovementCheck()
     {
-        if (path.Contains(tile))
+        while (true)
         {
-            transform.LookAt(path[0].transform);
-            path.RemoveAt(0);
+            yield return null;
+
+            if (path.Count > 0 && Vector3.Distance(transform.position, targetPosition) < 0.1f)
+            {
+                MovedOneTile(path[0]);
+            }
         }
     }
 
@@ -72,10 +76,17 @@ public class MoveAction : MonoBehaviour
         rb.MovePosition(transform.position + moveDir * speed * Time.deltaTime);
     }
 
+
     public void RotateTowardsTarget(Vector3 target)
     {
+        if (Velocity < 0.1f)
+        {
+            return;
+        }
 
-        Quaternion targetRotation = Quaternion.LookRotation(target - transform.position);
+        Vector3 direction = target - transform.position;
+        direction.y = 0f;
+        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
         float step = rotationSpeed * mobility * Time.deltaTime;
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, step);
     }
@@ -84,24 +95,40 @@ public class MoveAction : MonoBehaviour
     public void Move(Vector3 targetPosition)
     {
         this.targetPosition = targetPosition;
-        RotateTowardsTarget(new Vector3(path[0].transform.position.x, transform.position.y, path[0].transform.position.z));
+
+    }
+
+    public void MovedOneTile(OverlayTile tile)
+    {
+        if (path.Contains(tile))
+        {
+            path.RemoveAt(0);
+
+            if (path.Count == 0)
+            {
+                targetPosition = Vector3.zero;
+                anim.SetFloat("Velocity", 0f);
+            }
+        }
     }
 
     public void MoveToTile(OverlayTile tile)
     {
-        if (unit.currentTile != null)
+        if (unit.CurrentTile != null)
         {
-            PathFinder.Instance.FindPath(unit, unit.currentTile.worldPosition, tile.worldPosition, out int pathlength);
-            //path = GridManager.Instance.path;
-            PathFinder.Instance.HighlightPath(path);
+            PathFinder.Instance.FindPath(unit, unit.CurrentTile.WorldPosition, tile.WorldPosition, out List<OverlayTile> pathNodes);
 
-        }
-        else
-        {
-            Move(FindClosestTileToUnit(unit).worldPosition);
+            if (pathNodes != null && pathNodes.Count > 0)
+            {
+                path = pathNodes;
+                PathFinder.Instance.HighlightPath(path);
+                return;
+            }
         }
 
+        Move(FindClosestTileToUnit(unit).WorldPosition);
     }
+
     public OverlayTile FindClosestTileToUnit(Unit unit)
     {
         OverlayTile closestTile = null;
@@ -109,10 +136,10 @@ public class MoveAction : MonoBehaviour
 
         foreach (OverlayTile tile in TilesManager.Instance.GetAllTiles())
         {
-            if (!tile.walkable || tile.blocked)
+            if (!tile.Walkable || tile.Blocked)
                 continue;
 
-            float distance = Vector3.Distance(unit.transform.position, tile.worldPosition);
+            float distance = Vector3.Distance(unit.transform.position, tile.WorldPosition);
 
             if (distance < minDistance)
             {

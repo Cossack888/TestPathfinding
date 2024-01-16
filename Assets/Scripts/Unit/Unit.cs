@@ -1,34 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class Unit : MonoBehaviour
 {
-    public OverlayTile currentTile { get; private set; }
-    public OverlayTile targetTile { get; private set; }
-    public float mobility;
+    public OverlayTile CurrentTile { get; private set; }
+    public OverlayTile TargetTile { get; private set; }
     public bool isFollowing;
     public Identity Id { get; private set; }
-    public MoveAction moveAction { get; private set; }
-
+    public MoveAction MoveAction { get; private set; }
 
     private void Start()
     {
-        mobility = Random.Range(1, 5);
-        moveAction = GetComponent<MoveAction>();
+
+        MoveAction = GetComponent<MoveAction>();
     }
     public void SetCurrentTile(OverlayTile tile)
     {
-        currentTile = tile;
+        CurrentTile = tile;
     }
     public void SetTargetTile(OverlayTile tile)
     {
-        targetTile = tile;
+        TargetTile = tile;
     }
     public void ResetTargetTile()
     {
-        targetTile = null;
+        TargetTile = null;
     }
+
     public void SetUpIdentity(Identity IdToSet)
     {
         Id = IdToSet;

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Face: {fileID: 21300000, guid: da17cad30d9a41d4ab4da1062ba5cb53, type: 3}
   unitName: Maria
-  unitType: Warrior
+  unitBodyType: 1

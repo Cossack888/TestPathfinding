@@ -5,12 +5,10 @@ using UnityEngine;
 
 public class UnitSelectionManager : MonoBehaviour
 {
-    public Unit currentUnit;
-    public Unit[] units;
-    public MoveAction sourceUnitMoveAction;
-    public MoveAction destinationUnitMoveAction;
+    public Unit CurrentUnit { get; private set; }
+    public Unit[] Units { get; private set; }
     public bool gridWasReset;
-    public Identity[] Id;
+    [SerializeField] Identity[] Id;
     [SerializeField] GameObject barbarianPrefab;
     [SerializeField] GameObject warriorPrefab;
     [SerializeField] GameObject paladinPrefab;
@@ -57,12 +55,12 @@ public class UnitSelectionManager : MonoBehaviour
             }
 
         }
-        units = FindObjectsOfType<Unit>();
+        Units = FindObjectsOfType<Unit>();
         unitUI.SetUpPortraits();
     }
     public bool AreAnyUnitsMoving()
     {
-        return units.Any(unit => unit.moveAction.Velocity > 0.1f);
+        return Units.Any(unit => unit.MoveAction.Velocity > 0.1f);
     }
     public void SelectUnit(Unit unit)
     {
@@ -71,9 +69,9 @@ public class UnitSelectionManager : MonoBehaviour
     public void SetCurrentUnit(Unit unit)
     {
 
-        currentUnit = unit;
+        CurrentUnit = unit;
         unit.isFollowing = false;
-        foreach (Unit separateUnit in units)
+        foreach (Unit separateUnit in Units)
         {
             if (separateUnit != unit)
             {
@@ -86,7 +84,7 @@ public class UnitSelectionManager : MonoBehaviour
     }
     private void Update()
     {
-        if (!AreAnyUnitsMoving() && !gridWasReset && currentUnit != null)
+        if (!AreAnyUnitsMoving() && !gridWasReset && CurrentUnit != null)
         {
             ResetGrid();
             gridWasReset = true;
@@ -101,16 +99,16 @@ public class UnitSelectionManager : MonoBehaviour
 
         foreach (Unit tempUnit in FindObjectsOfType<Unit>())
         {
-            tempUnit.moveAction.path.Clear();
+            tempUnit.MoveAction.ClearPath();
             tempUnit.ResetTargetTile();
         }
     }
     public Unit GetCurrentUnit()
     {
-        return currentUnit;
+        return CurrentUnit;
     }
     public void ClearCache()
     {
-        currentUnit = null;
+        CurrentUnit = null;
     }
 }

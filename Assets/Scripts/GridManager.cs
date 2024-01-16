@@ -6,16 +6,15 @@ using UnityEngine.Tilemaps;
 public class GridManager : MonoBehaviour
 {
     public static GridManager Instance { get; private set; }
-    public LayerMask unwalkableMask;
-    public LayerMask floorMask;
-    public Vector2 gridWorldSize;
-    public float nodeRadius;
+    [SerializeField] LayerMask unwalkableMask;
+    [SerializeField] LayerMask floorMask;
+    [SerializeField] Vector2 gridWorldSize;
+    [SerializeField] float nodeRadius;
     OverlayTile[,] grid;
     [SerializeField] private Transform gridSystemVisualSinglePrefab;
-    public List<OverlayTile> tiles;
+    public List<OverlayTile> Tiles { get; private set; }
     float nodeDiameter;
     int gridSizeX, gridSizeY;
-    public List<OverlayTile> path;
     private void Awake()
     {
         if (Instance != null)
@@ -29,7 +28,7 @@ public class GridManager : MonoBehaviour
 
     void Start()
     {
-        tiles = new List<OverlayTile>();
+        Tiles = new List<OverlayTile>();
         nodeDiameter = nodeRadius * 2;
         gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
         gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
@@ -79,15 +78,15 @@ public class GridManager : MonoBehaviour
                     {
                         Transform gridTile = Instantiate(gridSystemVisualSinglePrefab, worldPoint, Quaternion.identity, gameObject.transform);
                         tile = gridTile.GetComponent<OverlayTile>();
-                        tiles.Add(tile);
+                        Tiles.Add(tile);
                     }
 
                     tile.gameObject.SetActive(true);
                     tile.name = worldPoint.ToString();
                     tile.SetTile(walkable, worldPoint, x, y);
-                    tile.SetColor(tile.neutralColor);
+                    tile.ResetColor();
                     tile.transform.position = worldPoint;
-                    if (!tile.walkable)
+                    if (!tile.Walkable)
                     {
                         tile.SetColor(Color.red);
                     }
@@ -102,7 +101,7 @@ public class GridManager : MonoBehaviour
 
     private OverlayTile GetInactiveTile()
     {
-        foreach (OverlayTile tile in tiles)
+        foreach (OverlayTile tile in Tiles)
         {
             if (!tile.gameObject.activeSelf)
             {
@@ -124,8 +123,8 @@ public class GridManager : MonoBehaviour
 
                 if (x == 0 && y == 0)
                     continue;
-                int checkX = node.gridX + x;
-                int checkY = node.gridY + y;
+                int checkX = node.GridX + x;
+                int checkY = node.GridY + y;
 
                 if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
                 {

@@ -39,7 +39,7 @@ public class TilesManager : MonoBehaviour
     }
     public void RemoveObstacleTiles(OverlayTile tile)
     {
-        tile.walkable = true;
+        tile.SetWalkable();
         tile.ResetColor();
 
     }

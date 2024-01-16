@@ -5,26 +5,25 @@ using UnityEngine;
 public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
 {
 
-    public bool walkable;
-    public bool blocked;
-    public Vector3 worldPosition;
-    public int gridX;
-    public int gridY;
-    public int gCost;
-    public int hCost;
+    public bool Walkable { get; private set; }
+    public bool Blocked { get; private set; }
+    public Vector3 WorldPosition { get; private set; }
+    public int GridX { get; private set; }
+    public int GridY { get; private set; }
+    public int GCost { get; private set; }
+    public int HCost { get; private set; }
     private int heapIndex;
-    public Unit currentUnit;
-    public OverlayTile parent;
-    public MeshRenderer tempRenderer;
+    public Unit CurrentUnit { get; private set; }
+    public OverlayTile Parent { get; private set; }
+    [SerializeField] MeshRenderer tempRenderer;
     public Color neutralColor;
-    public bool targetOfFollower;
     UnitSelectionManager manager;
     public OverlayTile SetTile(bool walkable, Vector3 worldPos, int gridX, int gridY)
     {
-        this.walkable = walkable;
-        worldPosition = worldPos;
-        this.gridX = gridX;
-        this.gridY = gridY;
+        this.Walkable = walkable;
+        WorldPosition = worldPos;
+        this.GridX = gridX;
+        this.GridY = gridY;
         return this;
     }
     public int HeapIndex
@@ -42,12 +41,11 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
     {
         get
         {
-            return gCost + hCost;
+            return GCost + HCost;
         }
     }
     private void Start()
     {
-        tempRenderer = GetComponent<MeshRenderer>();
         manager = UnitSelectionManager.Instance;
     }
     public int CompareTo(OverlayTile nodeToCompare)
@@ -55,34 +53,33 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
         int compare = fCost.CompareTo(nodeToCompare.fCost);
         if (compare == 0)
         {
-            compare = hCost.CompareTo(nodeToCompare.hCost);
+            compare = HCost.CompareTo(nodeToCompare.HCost);
         }
         return -compare;
     }
     private void OnMouseEnter()
     {
-        if (walkable) SetColor(Color.cyan);
+        if (Walkable) SetColor(Color.cyan);
     }
     private void OnMouseExit()
     {
-        if (walkable) ResetColor();
+        if (Walkable) ResetColor();
     }
     private void OnTriggerEnter(Collider other)
     {
 
 
-        if ((other.TryGetComponent<Unit>(out Unit unit) && !blocked && unit.targetTile != this))
+        if ((other.TryGetComponent<Unit>(out Unit unit) && !Blocked && unit.TargetTile != this))
         {
 
-            currentUnit = unit;
-            unit.moveAction.MovedOneTile(this);
+            CurrentUnit = unit;
             unit.SetCurrentTile(this);
-            blocked = true;
+            Blocked = true;
 
         }
         else
         {
-            if (unit.targetTile == this)
+            if (unit.TargetTile == this)
             {
                 manager.gridWasReset = false;
             }
@@ -94,10 +91,22 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
     {
         if (other.TryGetComponent<Unit>(out Unit unit))
         {
-            currentUnit = null;
-            blocked = false;
+            CurrentUnit = null;
+            Blocked = false;
+
         }
     }
+    public void SetCosts(int gCost, int hCost, OverlayTile parent)
+    {
+        GCost = gCost;
+        HCost = hCost;
+        Parent = parent;
+    }
+    public void SetWalkable()
+    {
+        Walkable = true;
+    }
+
     public void SetColor(Color color)
     {
         tempRenderer.material.color = color;
