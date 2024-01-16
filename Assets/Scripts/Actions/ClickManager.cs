@@ -77,6 +77,7 @@ public class ClickManager : MonoBehaviour
                     tilesList.RemoveAt(0);
                     unit.SetTargetTile(chosenTile);
                     StartCoroutine(Follow(1.5f, unit, chosenTile));
+                    //unit.CorrectCourse(currentUnit);
                 }
                 else
                 {
@@ -87,12 +88,28 @@ public class ClickManager : MonoBehaviour
         }
     }
 
+    public OverlayTile ChooseRandomTile(List<OverlayTile> tilesList)
+    {
+        if (tilesList.Count > 0)
+        {
+            OverlayTile chosenTile = tilesList[Random.Range(0, tilesList.Count)];
+            return chosenTile;
+        }
+        else
+        {
+            Debug.LogWarning("No more available tiles to choose.");
+            return null;
+        }
+    }
+
+
+
     IEnumerator Follow(float waitTime, Unit unit, OverlayTile tile)
     {
         yield return new WaitForSeconds(waitTime);
 
         unit.moveAction.MoveToTile(tile);
-        unit.MoveToTargetTile();
+        //unit.MoveToTargetTile();
     }
 
     public Vector3 GetTarget()

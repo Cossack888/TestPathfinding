@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f24d54a7b30323c48a447da75b706141, type: 3}
+  m_Name: Grolk
+  m_EditorClassIdentifier: 
+  Face: {fileID: 21300000, guid: eca9bd60e8bb30245ab4a42b6bbd6a7d, type: 3}
+  unitName: Grolk
+  unitType: Barbarian

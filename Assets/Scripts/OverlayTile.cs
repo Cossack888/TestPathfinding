@@ -59,10 +59,6 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
         }
         return -compare;
     }
-    /*private void Update()
-    {
-        if (targetOfFollower) { SetColor(Color.green); }
-    }*/
     private void OnMouseEnter()
     {
         if (walkable) SetColor(Color.cyan);
@@ -78,19 +74,10 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
         if ((other.TryGetComponent<Unit>(out Unit unit) && !blocked && unit.targetTile != this))
         {
 
-
             currentUnit = unit;
             unit.moveAction.MovedOneTile(this);
             unit.SetCurrentTile(this);
             blocked = true;
-
-
-            /* if (targetOfFollower && UnitSelectionManager.Instance.currentUnit != unit)
-             {
-                 targetOfFollower = false;
-                 unit.moveAction.path.Clear();
-             }*/
-
 
         }
         else
@@ -99,17 +86,10 @@ public class OverlayTile : MonoBehaviour, IHeapItem<OverlayTile>
             {
                 manager.gridWasReset = false;
             }
-            else
-            {
-                unit.moveAction.MoveToTile(unit.targetTile);
-            }
 
         }
     }
-    /*private void OnTriggerStay(Collider other)
-    {
-        
-    }*/
+
     private void OnTriggerExit(Collider other)
     {
         if (other.TryGetComponent<Unit>(out Unit unit))

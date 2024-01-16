@@ -10,7 +10,16 @@ public class UnitSelectionManager : MonoBehaviour
     public MoveAction sourceUnitMoveAction;
     public MoveAction destinationUnitMoveAction;
     public bool gridWasReset;
-    public static UnitSelectionManager Instance { get; private set; }
+    public Identity[] Id;
+    [SerializeField] GameObject barbarianPrefab;
+    [SerializeField] GameObject warriorPrefab;
+    [SerializeField] GameObject paladinPrefab;
+    [SerializeField] GameObject thiefPrefab;
+    [SerializeField] Transform[] spawnLocation;
+    [SerializeField] UnitUI unitUI;
+    public static UnitSelectionManager Instance
+    { get; private set; }
+
     private void Awake()
     {
         if (Instance != null)
@@ -20,7 +29,36 @@ public class UnitSelectionManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+    }
+    private void Start()
+    {
+        for (int i = 0; i < Id.Length && i < spawnLocation.Length; i++)
+        {
+
+
+            switch (Id[i].unitBodyType)
+            {
+                case Identity.TypeOfUnit.Paladin:
+                    GameObject paladinPref = Instantiate(paladinPrefab, spawnLocation[i].position, transform.rotation);
+                    paladinPref.GetComponent<Unit>().SetUpIdentity(Id[i]);
+                    break;
+                case Identity.TypeOfUnit.Thief:
+                    GameObject thiefPref = Instantiate(thiefPrefab, spawnLocation[i].position, transform.rotation);
+                    thiefPref.GetComponent<Unit>().SetUpIdentity(Id[i]); break;
+                case Identity.TypeOfUnit.Warrior:
+                    GameObject warriorPref = Instantiate(warriorPrefab, spawnLocation[i].position, transform.rotation);
+                    warriorPref.GetComponent<Unit>().SetUpIdentity(Id[i]); break;
+                case Identity.TypeOfUnit.Barbarian:
+                    GameObject barbarianPref = Instantiate(barbarianPrefab, spawnLocation[i].position, transform.rotation);
+                    barbarianPref.GetComponent<Unit>().SetUpIdentity(Id[i]); break;
+
+
+            }
+
+        }
         units = FindObjectsOfType<Unit>();
+        unitUI.SetUpPortraits();
     }
     public bool AreAnyUnitsMoving()
     {
@@ -34,29 +72,38 @@ public class UnitSelectionManager : MonoBehaviour
     {
 
         currentUnit = unit;
+        unit.isFollowing = false;
+        foreach (Unit separateUnit in units)
+        {
+            if (separateUnit != unit)
+            {
+                unit.isFollowing = true;
+            }
 
+        }
         ResetGrid();
 
     }
-    /*private void Update()
+    private void Update()
     {
         if (!AreAnyUnitsMoving() && !gridWasReset && currentUnit != null)
         {
             ResetGrid();
             gridWasReset = true;
         }
-    }*/
+    }
     public void ResetGrid()
     {
         GridManager grid = GridManager.Instance;
+
+        grid.DestroyGrid();
+        grid.CreateGrid();
+
         foreach (Unit tempUnit in FindObjectsOfType<Unit>())
         {
             tempUnit.moveAction.path.Clear();
             tempUnit.ResetTargetTile();
         }
-        grid.DestroyGrid();
-        grid.CreateGrid();
-
     }
     public Unit GetCurrentUnit()
     {

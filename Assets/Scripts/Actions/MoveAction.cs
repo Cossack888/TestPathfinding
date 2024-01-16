@@ -74,13 +74,9 @@ public class MoveAction : MonoBehaviour
 
     public void RotateTowardsTarget(Vector3 target)
     {
-        // Calculate the rotation needed to face the target
+
         Quaternion targetRotation = Quaternion.LookRotation(target - transform.position);
-
-        // Calculate the rotation step based on mobility and time
         float step = rotationSpeed * mobility * Time.deltaTime;
-
-        // Rotate towards the target
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, step);
     }
 
@@ -95,7 +91,6 @@ public class MoveAction : MonoBehaviour
     {
         if (unit.currentTile != null)
         {
-
             PathFinder.Instance.FindPath(unit, unit.currentTile.worldPosition, tile.worldPosition, out int pathlength);
             //path = GridManager.Instance.path;
             PathFinder.Instance.HighlightPath(path);

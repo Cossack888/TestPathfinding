@@ -6,10 +6,9 @@ public class Unit : MonoBehaviour
 {
     public OverlayTile currentTile { get; private set; }
     public OverlayTile targetTile { get; private set; }
-
     public float mobility;
-
-
+    public bool isFollowing;
+    public Identity Id { get; private set; }
     public MoveAction moveAction { get; private set; }
 
 
@@ -30,19 +29,8 @@ public class Unit : MonoBehaviour
     {
         targetTile = null;
     }
-    public void MoveToTargetTile()
+    public void SetUpIdentity(Identity IdToSet)
     {
-        StartCoroutine(TryToGetToTargetTile(2f));
+        Id = IdToSet;
     }
-    IEnumerator TryToGetToTargetTile(float waitTime)
-    {
-        yield return new WaitForSeconds(waitTime);
-        if (moveAction.Velocity < 0.1f && currentTile != targetTile && currentTile != null)
-        {
-            // ClickManager.Instance.ChooseNeighboringTile(UnitSelectionManager.Instance.currentUnit);
-            moveAction.MoveToTile(this.targetTile);
-            StartCoroutine(TryToGetToTargetTile(2f));
-        }
-    }
-
 }
